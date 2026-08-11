@@ -54,7 +54,7 @@ export default class PreviewCommand extends Command {
         await api.serve(options)
       }
     } catch (err) {
-      console.error(err)
+      console.error(err.message);
     }
   }
 
