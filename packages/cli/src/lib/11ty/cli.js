@@ -81,20 +81,15 @@ export default {
     const { command, env } = factory(options)
 
     if (options.dryRun) command.push('--dryrun')
-
+    if (options.debug) env.QUIRE_DEBUG_LOG = 'DEBUG'
     env.ELEVENTY_ENV = 'production'
 
-    const build = execa('node', command, {
-      all: true,
-      cwd: projectRoot,
-      env,
-      nodePath: process.execPath
-    })
-    build.all.pipe(process.stdout)
-    await build
-
-    if (build.exitCode !== 0) {
-      process.exit(build.exitCode)
+    try {
+      const build = execa('node', command, { all: true, cwd: projectRoot, env })
+      build.all.pipe(process.stdout)
+      await build
+    } catch (err) {
+      throw new Error('Build failed', { cause: err })
     }
   },
 

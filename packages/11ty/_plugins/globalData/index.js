@@ -10,28 +10,36 @@ const logger = chalkFactory('[plugins:globalData]')
  * Throws an error if data contains duplicate ids
  * @param  {Object|Array} data
  */
-const checkForDuplicateIds = function (data, filename) {
+const checkForDuplicateIds = function (data, filename, key = '') {
   if (!data) return
 
-  if (Array.isArray(data)) {
-    if (data.every((item) => Object.hasOwn(item, 'id'))) {
-      const duplicates = data.filter((a, index) => {
+  if(Array.isArray(data)) {
+    const isObject = data.length > 0 
+      && data.some((item) => typeof item === 'object' 
+      && Object.hasOwn(item, 'id'))
+     
+    if(isObject) {
+      const isMissingId = data.some((item) => !item?.id)
+      if(isMissingId) {
+        throw new Error(`${filename}: "${key}" contains an entry with no "id".`)
+      }
+
+      const duplicates = data.filter((a,index) => {
         return index !== data.findIndex((b) => b.id === a.id)
       })
+
       if (duplicates.length) {
         const ids = duplicates.map(({ id }) => id)
-        throw new Error(`Duplicates ids: ${ids.join(', ')}`)
+        throw new Error(`${filename}: "${key}" contains duplicate ids: ${ids.join(', ')}.`)
       }
     }
+
+    return 
   }
 
   if (typeof data === 'object') {
     Object.keys(data).forEach((key) => {
-      try {
-        checkForDuplicateIds(data[key], filename)
-      } catch (error) {
-        logger.error(`${filename} ${key} contains multiple entries with the same id.\nEach entry in ${key} must have a unique id. ${error.message}`)
-      }
+      checkForDuplicateIds(data[key], filename, key)
     })
   }
 }
@@ -68,6 +76,7 @@ export default function (eleventyConfig, directoryConfig) {
     let value
     try {
       value = validateUserConfig(key, parsed)
+      checkForDuplicateIds(value, file)
     } catch (err) {
       logger.error(err)
       process.exit(1)
@@ -76,7 +85,6 @@ export default function (eleventyConfig, directoryConfig) {
     if (!key || !value) {
       continue
     }
-    checkForDuplicateIds(value, file)
     eleventyConfig.addGlobalData(key, value)
   }
 
