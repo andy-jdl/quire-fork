@@ -10,7 +10,7 @@ const logger = chalkFactory('[plugins:globalData]')
  * Throws an error if data contains duplicate ids
  * @param  {Object|Array} data
  */
-const checkForDuplicateIds = function (data, filename, key = '') {
+const validateObjectIds = function (data, filename, key = '') {
   if (!data) return
 
   if(Array.isArray(data)) {
@@ -39,7 +39,7 @@ const checkForDuplicateIds = function (data, filename, key = '') {
 
   if (typeof data === 'object') {
     Object.keys(data).forEach((key) => {
-      checkForDuplicateIds(data[key], filename, key)
+      validateObjectIds(data[key], filename, key)
     })
   }
 }
@@ -76,7 +76,7 @@ export default function (eleventyConfig, directoryConfig) {
     let value
     try {
       value = validateUserConfig(key, parsed)
-      checkForDuplicateIds(value, file)
+      validateObjectIds(value, file, key)
     } catch (err) {
       logger.error(err)
       process.exit(1)

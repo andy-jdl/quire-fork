@@ -81,16 +81,12 @@ export default {
     const { command, env } = factory(options)
 
     if (options.dryRun) command.push('--dryrun')
-    if (options.debug) env.QUIRE_DEBUG_LOG = 'DEBUG'
+    if (options.debug) env.CHALK_LEVEL_LOG = 'DEBUG'
     env.ELEVENTY_ENV = 'production'
 
-    try {
-      const build = execa('node', command, { all: true, cwd: projectRoot, env })
-      build.all.pipe(process.stdout)
-      await build
-    } catch (err) {
-      throw new Error('Build failed', { cause: err })
-    }
+    const build = execa('node', command, { all: true, cwd: projectRoot, env })
+    build.all.pipe(process.stdout)
+    await build
   },
 
   serve: async (options = {}) => {
@@ -101,14 +97,15 @@ export default {
     command.push('--serve')
 
     if (options.port) command.push(`--port=${options.port}`)
+    if (options.debug) env.QUIRE_DEBUG_LOG = 'DEBUG'
 
     env.ELEVENTY_ENV = 'development'
-
+    
     await execa('node', command, {
       all: true,
       cwd: projectRoot,
-      env,
-      nodePath: process.execPath
+      env
     }).all.pipe(process.stdout)
+
   }
 }
