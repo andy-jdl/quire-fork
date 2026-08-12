@@ -84,9 +84,14 @@ export default {
     if (options.debug) env.CHALK_LEVEL_LOG = 'DEBUG'
     env.ELEVENTY_ENV = 'production'
 
-    const build = execa('node', command, { all: true, cwd: projectRoot, env })
-    build.all.pipe(process.stdout)
-    await build
+    try {
+      const build = execa('node', command, { all: true, cwd: projectRoot, env })
+      build.all.pipe(process.stdout)
+      await build
+    } catch(err) {
+        process.exitCode = 1
+    }
+
   },
 
   serve: async (options = {}) => {
