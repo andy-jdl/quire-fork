@@ -89,7 +89,7 @@ export default {
       build.all.pipe(process.stdout)
       await build
     } catch(err) {
-        process.exitCode = 1
+      process.exit(1)
     }
 
   },
