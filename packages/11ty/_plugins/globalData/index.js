@@ -78,8 +78,7 @@ export default function (eleventyConfig, directoryConfig) {
       value = validateUserConfig(key, parsed)
       validateObjectIds(value, file, key)
     } catch (err) {
-      logger.error(err)
-      process.exit(1)
+      throw err
     }
 
     if (!key || !value) {

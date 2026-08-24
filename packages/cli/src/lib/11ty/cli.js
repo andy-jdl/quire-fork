@@ -105,12 +105,17 @@ export default {
     if (options.debug) env.QUIRE_DEBUG_LOG = 'DEBUG'
 
     env.ELEVENTY_ENV = 'development'
-    
-    await execa('node', command, {
-      all: true,
-      cwd: projectRoot,
-      env
-    }).all.pipe(process.stdout)
 
+    try {
+      
+      await execa('node', command, {
+        all: true,
+        cwd: projectRoot,
+        env
+      }).all.pipe(process.stdout)
+
+    } catch (err) {
+      process.exit(1);
+    }
   }
 }
