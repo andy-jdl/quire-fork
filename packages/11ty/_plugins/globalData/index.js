@@ -33,8 +33,6 @@ const validateObjectIds = function (data, filename, key = '') {
         throw new Error(`${filename}: "${key}" contains duplicate ids: ${ids.join(', ')}.`)
       }
     }
-
-    return 
   }
 
   if (typeof data === 'object') {
