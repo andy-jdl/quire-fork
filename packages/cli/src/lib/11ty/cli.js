@@ -83,13 +83,18 @@ export default {
     if (options.dryRun) command.push('--dryrun')
     if (options.debug) env.CHALK_LEVEL_LOG = 'DEBUG'
     env.ELEVENTY_ENV = 'production'
+    
+    const build = execa('node', command, {
+      all:true, 
+      cwd: projectRoot,
+      env,
+      nodePath: process.stdout
+    }).all.pipe(process.stdout)
+    
+    await build;
 
-    try {
-      const build = execa('node', command, { all: true, cwd: projectRoot, env })
-      build.all.pipe(process.stdout)
-      await build
-    } catch(err) {
-      process.exit(1)
+    if (build.exitCode !== 0) {
+      process.exit(build.exitCode);
     }
 
   },
@@ -106,16 +111,11 @@ export default {
 
     env.ELEVENTY_ENV = 'development'
 
-    try {
-      
-      await execa('node', command, {
-        all: true,
-        cwd: projectRoot,
-        env
-      }).all.pipe(process.stdout)
-
-    } catch (err) {
-      process.exit(1);
-    }
+    await execa('node', command, {
+      all: true,
+      cwd: projectRoot,
+      env, 
+      nodePath: process.execPath
+    }).all.pipe(process.stdout)
   }
 }

@@ -13,18 +13,15 @@ const logger = chalkFactory('[plugins:globalData]')
 const validateObjectIds = function (data, filename, key = '') {
   if (!data) return
 
-  if(Array.isArray(data)) {
-    const isObject = data.length > 0 
-      && data.some((item) => typeof item === 'object' 
-      && Object.hasOwn(item, 'id'))
-     
-    if(isObject) {
+  if (Array.isArray(data)) {
+    const isObject = data.length > 0 && data.some((item) => typeof item === 'object' && Object.hasOwn(item, 'id'))
+    if (isObject) {
       const isMissingId = data.some((item) => !item?.id)
-      if(isMissingId) {
+      if (isMissingId) {
         throw new Error(`${filename}: "${key}" contains an entry with no "id".`)
       }
 
-      const duplicates = data.filter((a,index) => {
+      const duplicates = data.filter((a, index) => {
         return index !== data.findIndex((b) => b.id === a.id)
       })
 
@@ -76,7 +73,8 @@ export default function (eleventyConfig, directoryConfig) {
       value = validateUserConfig(key, parsed)
       validateObjectIds(value, file, key)
     } catch (err) {
-      throw err
+      logger.error(err.message)
+      process.exit(1)
     }
 
     if (!key || !value) {
